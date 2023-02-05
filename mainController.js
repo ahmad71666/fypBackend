@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const objectId = require("mongodb").ObjectId;
 const User = require("./userModel");
 const Doctor = require("./doctorModel");
+const Medicine = require("./medicine");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const {createTokens,validateToken} = require("./Jwt");
@@ -68,6 +69,60 @@ app.post("/patient/medicine/search",async (req, res) => {
 	});
 
 });
+
+app.post("/patient/medicine/addMedicine",async (req, res) => {
+
+	const Response = class {
+    
+		constructor(){
+			this.message = ''
+			this.data = []
+			this.error = false
+		}
+	
+	}
+
+	const response = new Response()
+
+
+
+	try {
+
+        if (req?.body?.medicines.length > 0) {
+          
+            let objects = req?.body?.medicines.map(item => ({ name: item }))
+
+            const medicine = new Medicine()
+
+            medicine.collection.insertMany(objects)
+                .then((result) => {
+                    response.message = "Added successfully"
+                    response.data = result
+                    res.send(response)
+                })
+                .catch((err) => {
+                    console.log(err, "err");
+                    res.send("not saved")
+                })
+
+        } else {
+
+            response.message = "No medicine recieved"
+            response.error = true
+            res.send(response)
+
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.send(error)
+    }
+
+
+});
+
+
+
 
 ////				SIGN UP DOCTOR
 
